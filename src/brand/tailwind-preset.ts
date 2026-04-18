@@ -16,11 +16,20 @@
 import type { Config } from 'tailwindcss';
 import { colors, fontFamily } from './tokens';
 
+// tokens.ts declares colors + fontFamily with `as const` so downstream
+// type-narrow code (e.g. `BrandColor`) gets precise literals. Tailwind's
+// Config type expects mutable objects, so we widen here at the boundary.
+type MutableFontFamily = Record<string, string[]>;
+
 const preset: Partial<Config> = {
   theme: {
     extend: {
-      colors,
-      fontFamily,
+      colors: { ...colors },
+      fontFamily: {
+        ui: [...fontFamily.ui],
+        editorial: [...fontFamily.editorial],
+        body: [...fontFamily.body],
+      } satisfies MutableFontFamily,
     },
   },
 };
