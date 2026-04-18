@@ -28,3 +28,14 @@ export type {
   ButtonVariant,
   ButtonSize,
 } from './classes';
+
+// Brand tokens — also available via '@ui/brand' for direct imports.
+export {
+  colors as brandColors,
+  fontFamily as brandFontFamily,
+  googleFontsHref,
+  wordmark,
+  selectionBackground,
+  tailwindPreset as longleafTailwindPreset,
+} from './brand';
+export type { BrandColor } from './brand';
