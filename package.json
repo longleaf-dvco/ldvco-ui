@@ -1,0 +1,12 @@
+{
+  "name": "@longleaf/ui",
+  "private": true,
+  "version": "0.1.0",
+  "description": "App-design components shared across Longleaf internal tools. Consumed as a git submodule; source-only, no build step.",
+  "type": "module",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}
