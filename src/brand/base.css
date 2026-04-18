@@ -1,0 +1,40 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Longleaf base styles — import FIRST in each consumer's index.css,
+   before any @tailwind directives.
+
+   Usage (consumer's src/index.css):
+     @import "../ui/src/brand/base.css";
+     @tailwind base;
+     @tailwind components;
+     @tailwind utilities;
+
+   Enforces the three non-negotiables: no border-radius, no shadows,
+   no gradients. Longleaf is sharp rectangles and flat color.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Global reset — no rounding, no shadows anywhere. Period. */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: #3A3632; /* driftwood */
+  font-family: "Outfit", sans-serif;
+  font-weight: 300;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Gold selection highlight — every Longleaf surface. */
+::selection {
+  background: rgba(184, 151, 90, 0.25);
+}
