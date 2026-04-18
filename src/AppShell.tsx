@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { cn } from './classes';
 
@@ -33,18 +34,27 @@ export type AppShellProps = {
    * variance: notes pages use 'max-w-2xl mx-auto ...'.
    */
   contentClassName?: string;
+  /**
+   * App slug used as the localStorage key for the collapsed-sidebar
+   * preference. Required so each app remembers its own state — set to
+   * the same string the consuming app already uses elsewhere
+   * (e.g. 'admin', 'ops', 'pipeline').
+   */
+  appSlug: string;
 };
 
+const COLLAPSE_KEY_PREFIX = 'ldvco-ui:sidebar-collapsed:';
+
 /**
- * Three-zone app shell for every internal Longleaf tool.
+ * Three-zone app shell for every internal Longleaf tool, with a
+ * collapsible sidebar.
  *
- * Structure (desktop):
+ * Default layout:
  *   ┌────────────────┬──────────────────────────────────────────┐
- *   │ LONGLEAF       │                                          │
+ *   │ LONGLEAF    [‹]│                                          │
  *   │ {appName}      │                                          │
- *   │ ──────────────│                                          │
- *   │ {nav}          │          {children}                      │
- *   │                │                                          │
+ *   │ ──────────────│          {children}                      │
+ *   │ {nav}          │                                          │
  *   │ ─ divider ─   │                                          │
  *   │ {secondary}    │                                          │
  *   │ ──────────────│                                          │
@@ -54,9 +64,16 @@ export type AppShellProps = {
  *   │ [Sign out]     │                                          │
  *   └────────────────┴──────────────────────────────────────────┘
  *
- * On mobile, the sidebar collapses to a horizontal top bar; the
- * signed-in footer hides (sign out is available on a menu or from
- * the app's own settings — out of scope for this shell).
+ * Collapsed:
+ *   ┌─┬─────────────────────────────────────────────────────────┐
+ *   │≡│                  {children}                             │
+ *   └─┴─────────────────────────────────────────────────────────┘
+ *
+ * Collapse state persists per-app in localStorage so the user's
+ * choice carries across sessions.
+ *
+ * On mobile the sidebar lays out as a horizontal top strip; the
+ * collapse toggle hides on mobile (the sidebar is already compact).
  */
 export default function AppShell({
   appName,
@@ -66,31 +83,71 @@ export default function AppShell({
   onSignOut,
   children,
   contentClassName,
+  appSlug,
 }: AppShellProps) {
+  const collapseKey = `${COLLAPSE_KEY_PREFIX}${appSlug}`;
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(collapseKey) === '1';
+  });
+
+  // Persist collapse changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (collapsed) window.localStorage.setItem(collapseKey, '1');
+    else window.localStorage.removeItem(collapseKey);
+  }, [collapsed, collapseKey]);
+
   const displayName = user.name || user.email || 'Signed in';
   const roleLabel = user.role ? formatRole(user.role) : null;
 
-  const main =
-    contentClassName ??
-    'max-w-5xl mx-auto px-6 py-12 lg:py-16';
+  const main = contentClassName ?? 'max-w-5xl mx-auto px-6 py-12 lg:py-16';
 
   return (
-    <div className="min-h-screen bg-light-sand flex flex-col lg:flex-row">
-      <aside className="lg:w-64 lg:min-h-screen border-b lg:border-b-0 lg:border-r border-sand bg-white flex-shrink-0 flex flex-col">
+    <div className="min-h-screen bg-light-sand flex flex-col lg:flex-row relative">
+      {/* Floating "show sidebar" button — only visible on desktop while collapsed */}
+      {collapsed && (
+        <button
+          type="button"
+          onClick={() => setCollapsed(false)}
+          aria-label="Show sidebar"
+          className="hidden lg:flex fixed top-4 left-4 z-20 w-9 h-9 items-center justify-center bg-white border border-sand text-deep-blue hover:bg-light-sand"
+        >
+          <HamburgerIcon />
+        </button>
+      )}
+
+      <aside
+        className={cn(
+          'border-b lg:border-b-0 lg:border-r border-sand bg-white flex-shrink-0 flex flex-col',
+          // Hidden on desktop when collapsed; mobile always shows it as horizontal strip
+          collapsed ? 'hidden lg:hidden' : 'lg:w-64 lg:min-h-screen'
+        )}
+      >
         {/* Branding */}
-        <div className="px-6 py-6 border-b border-sand">
-          <div
-            className="font-ui font-bold text-deep-blue text-sm uppercase"
-            style={{ letterSpacing: '2.5px' }}
-          >
-            LONGLEAF
+        <div className="px-6 py-6 border-b border-sand flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div
+              className="font-ui font-bold text-deep-blue text-sm uppercase"
+              style={{ letterSpacing: '2.5px' }}
+            >
+              LONGLEAF
+            </div>
+            <div
+              className="font-ui font-semibold uppercase text-oyster mt-2 truncate"
+              style={{ fontSize: '11px', letterSpacing: '2px' }}
+            >
+              {appName}
+            </div>
           </div>
-          <div
-            className="font-ui font-semibold uppercase text-oyster mt-2"
-            style={{ fontSize: '11px', letterSpacing: '2px' }}
+          <button
+            type="button"
+            onClick={() => setCollapsed(true)}
+            aria-label="Collapse sidebar"
+            className="hidden lg:flex w-7 h-7 items-center justify-center text-oyster hover:text-deep-blue hover:bg-light-sand shrink-0"
           >
-            {appName}
-          </div>
+            <ChevronLeftIcon />
+          </button>
         </div>
 
         {/* Nav */}
@@ -136,6 +193,31 @@ export default function AppShell({
 }
 
 function formatRole(role: string): string {
-  // 'super_admin' → 'SUPER ADMIN', 'member' → 'MEMBER'
   return role.replace(/_/g, ' ').toUpperCase();
+}
+
+function ChevronLeftIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M10 12L6 8L10 4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="square"
+      />
+    </svg>
+  );
+}
+
+function HamburgerIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M2 4H14M2 8H14M2 12H14"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="square"
+      />
+    </svg>
+  );
 }
