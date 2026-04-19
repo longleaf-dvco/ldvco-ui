@@ -127,9 +127,13 @@ export default function AppShell({
         {/* Branding — LONGLEAF is the wordmark; appName is a quiet tag */}
         <div className="px-6 py-6 flex items-start justify-between gap-3">
           <div className="min-w-0">
+            {/* Bumped from text-sm to text-base + tracking from 2.5px to 3px
+                so the wordmark holds its own against the public-site nav.
+                Kept below the public site's 3.5px tracking — internal
+                stays a touch quieter per the brand kit. */}
             <div
-              className="font-ui font-bold text-deep-blue text-sm uppercase"
-              style={{ letterSpacing: '2.5px' }}
+              className="font-ui font-bold text-deep-blue text-base uppercase"
+              style={{ letterSpacing: '3px' }}
             >
               LONGLEAF
             </div>
