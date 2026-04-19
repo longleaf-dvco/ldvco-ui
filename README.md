@@ -124,6 +124,8 @@ that's a bug, not a design choice.
 | `SidebarSection` + `sidebarItemClass` helper | `internal` | Nav slot building blocks. Supports `<NavLink>`, `<a>`, `<button>` children via a className helper. |
 | `PageHeader` | `internal` | Top-of-page. Two variants: `editorial` (eyebrow + H1) and `utilitarian` (H1 + subtitle). 28px Libre Baskerville — utility-mode sized. |
 | `Button` | `primitives` | Primary / secondary / ghost variants. Consistent letter-spacing dialect (`tracking-wider`). |
+| `Select` + `SelectField` | `primitives` | Utility-mode dropdown. Transparent bg, underline only, custom chevron — same on every OS. Use instead of raw `<select>`. |
+| `Input` + `InputField` + `TextArea` | `primitives` | Utility-mode text input. Transparent bg, underline only, focus swaps to coastal-blue. Use instead of raw `<input>` / `<textarea>`. |
 | `EmptyState` | `primitives` | "No data yet" messaging — consistent language across pages. |
 | `ErrorBanner` | `primitives` | Dismissible red banner for operation failures. |
 
@@ -321,6 +323,94 @@ Before merging a new project site, grep for these tells of drift:
 - [ ] Footer is `py-6` (not `py-12`, not `py-24` — it's a strip, not a section)
 - [ ] Footer text is 12px `text-coastal-blue` on `bg-deep-blue`
 - [ ] Stacked `LONGLEAF` + `DEVELOPMENT CO.` appears only in the hero, if at all
+
+---
+
+## Internal tier rules
+
+The internal tier (`admin.ldvco.com`, `launcher.ldvco.com`,
+`ops.ldvco.com`, `pipeline.ldvco.com`, `returns.ldvco.com`) is
+utility mode: quieter than marketing, flatter than you'd expect,
+decorations earned not assumed. If an internal page feels overbearing,
+one of the rules below is usually being violated.
+
+### Rule: no stacked surfaces
+
+`AppShell` already provides the page surface — it renders a
+`bg-light-sand` `<main>` with padding + `max-w-5xl`. **Page content
+should sit directly on that surface.** Don't wrap sections in
+`border border-sand bg-white p-X` cards just to give them weight. The
+result is boxes-in-boxes: a white card inside a sand page inside a
+sidebar, each fighting for attention.
+
+Use whitespace and a single thin rule for separation instead:
+
+| Pattern | Use instead |
+|---|---|
+| Filter bar in a `border border-sand bg-white p-4` card | Bare flex row, no border, no bg — lives inline with the page |
+| Table in a `border border-sand bg-white` wrapper | `border-t border-sand` on the table, `border-b border-sand` on each row |
+| Empty state as a bare `<p>` sitting alone | Also fine — or `EmptyState` if the page already has other framed elements |
+| Form sections each in their own `border border-sand` card | One form, one surface. Use `h2` + whitespace to separate sections. |
+
+**Exception:** Dashboard tiles (launcher grid) and Experiment cards
+are bordered by design — they're discrete objects in a grid, not
+sub-sections of a page. Keep those bordered.
+
+Rule of thumb: if you can count more than **one** `border border-sand
+bg-white` wrapper on a single screen, one of them is wrong.
+
+### Rule: fields are lines, not boxes
+
+Internal tools are places to get work done. A data-entry page with 12
+boxed inputs reads as a form to fill out. The same page with 12
+bottom-underline inputs reads as a sheet to write on — quieter, and
+the eye stops competing with the chrome.
+
+Stop using bordered inputs anywhere in internal-tier code:
+
+| Do not | Use instead |
+|---|---|
+| `<input className="border border-sand px-3 py-2 ..." />` | `<Input />` from `@ui/primitives` (underline, transparent bg) |
+| `<select className="border border-sand bg-white ..." />` | `<Select />` from `@ui/primitives` (underline, transparent bg, custom chevron) |
+| Custom label + input markup repeated across forms | `<InputField label="..." />` / `<SelectField label="..." />` |
+
+The underline recipe, consistent across `Input` / `Select` / `TextArea`:
+
+- Rest: `border-b border-sand`, `bg-transparent` (inherits page)
+- Hover: `border-b-oyster`
+- Focus: `border-b-coastal-blue`, no box shadow, no ring
+- No other borders, no padding inside the frame, flush-left
+
+Native `<select>` and bordered `<input>` are banned anywhere in
+internal-tier code — grep for `border border-sand px-` and
+`className=".*<select>` in PRs.
+
+### Rule: the container wins
+
+`AppShell` sets `bg-light-sand`. Don't flip sections to `bg-white`
+unless it's genuinely a different affordance (modal, popover, floating
+menu). Sand-on-sand with borders between rows reads denser and quieter
+than white-on-sand with borders around blocks — which is what utility
+mode is for.
+
+### Internal tier PR audit
+
+Grep before merging:
+
+- [ ] No raw `<select>` or bordered `<input>` — use `@ui/primitives`
+      `Select` / `Input` (underline, transparent bg)
+- [ ] No `border border-sand bg-white` wrappers around filter bars,
+      form sections, or tables — whitespace and a single thin rule
+      separate content, not stacked cards
+- [ ] No `bg-white` blocks inside the `AppShell` main area unless
+      they are dashboard tiles, cards in a grid, or modals
+- [ ] Wordmark uses `letterSpacing: '2.5px'`–`'3px'` (not `3.5px` —
+      that's marketing/project tier)
+- [ ] Row-level actions use opacity-0 → `group-hover:opacity-100`
+      pattern (hide interactive chrome at rest)
+- [ ] Primary CTAs use `bg-coastal-blue` + white text, hover `bg-deep-blue`
+- [ ] Page vertical padding follows `AppShell`'s `py-8 lg:py-12`
+      default unless the page is intentionally content-focused
 
 ---
 

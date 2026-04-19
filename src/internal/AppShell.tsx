@@ -36,8 +36,10 @@ export type AppShellProps = {
   children: ReactNode;
   /**
    * Override the main content container classes. Default:
-   * 'max-w-5xl mx-auto px-6 py-12 lg:py-16'. Override for content-width
-   * variance: notes pages use 'max-w-2xl mx-auto ...'.
+   * 'max-w-5xl mx-auto px-6 py-8 lg:py-12'. Utility-mode density —
+   * data surfaces sit closer to the top. Override for content-focused
+   * pages that want more breathing room, or for narrower columns
+   * (notes pages use 'max-w-2xl mx-auto px-6 py-12 lg:py-16').
    */
   contentClassName?: string;
   /**
@@ -108,7 +110,7 @@ export default function AppShell({
   const displayName = user.name || user.email || 'Signed in';
   const roleLabel = user.role ? formatRole(user.role) : null;
 
-  const main = contentClassName ?? 'max-w-5xl mx-auto px-6 py-12 lg:py-16';
+  const main = contentClassName ?? 'max-w-5xl mx-auto px-6 py-8 lg:py-12';
 
   return (
     <div className="min-h-screen bg-light-sand flex flex-col lg:flex-row relative">

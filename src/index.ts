@@ -52,6 +52,22 @@ export type { EmptyStateProps } from './primitives/EmptyState';
 export { default as ErrorBanner } from './primitives/ErrorBanner';
 export type { ErrorBannerProps } from './primitives/ErrorBanner';
 
+export { default as Select, SelectField } from './primitives/Select';
+export type {
+  SelectProps,
+  SelectFieldProps,
+  SelectOption,
+  SelectSize,
+} from './primitives/Select';
+
+export { default as Input, InputField, TextArea } from './primitives/Input';
+export type {
+  InputProps,
+  InputFieldProps,
+  InputSize,
+  TextAreaProps,
+} from './primitives/Input';
+
 export { cn, sidebarItemClass, buttonClass } from './primitives/classes';
 export type {
   SidebarItemState,
