@@ -1,8 +1,7 @@
 # @longleaf/ui
 
-App-design components and chrome contracts shared across Longleaf
-apps — internal tools (Operations, admin, marketing, pipeline) and
-private-tier microsites (deal rooms, property sites).
+Design components and chrome contracts shared across every Longleaf
+surface. Three tiers, explicitly separated — see [Tiers](#tiers) below.
 
 ## What lives here vs. UI-INTERFACE.md
 
@@ -12,14 +11,9 @@ shadows), the things every Longleaf surface (public marketing,
 external deals, internal tools) shares.
 
 This package is **app design** — the specific React components and
-chrome contracts used to build Longleaf apps (internal tools **and**
-private-tier microsites). It assumes `UI-INTERFACE.md` tokens (colors,
-fonts, Tailwind config) are already wired up in the consuming app.
-
-Microsites are a subdued/private version of `longleafdvco.com`, but
-"subdued" applies to content density and motion — **not** the chrome.
-Header and footer must match the public site pixel-for-pixel; see
-[Microsite chrome contract](#microsite-chrome-contract) below.
+chrome contracts used to build Longleaf apps across all three tiers.
+It assumes `UI-INTERFACE.md` tokens (colors, fonts, Tailwind config)
+are already wired up in the consuming app.
 
 ## Consumption
 
@@ -45,41 +39,143 @@ resolve: {
 }
 ```
 
+**Critical — Tailwind content paths.** Tailwind only generates utility
+CSS for class names it finds in files listed in `content`. Add the
+submodule path or every responsive utility used inside @longleaf/ui
+components (`lg:w-64`, `lg:flex-row`, `lg:min-h-screen`, etc.) gets
+purged and the sidebar collapses to its mobile layout at every viewport
+width:
+
+```ts
+// tailwind.config.ts
+export default {
+  content: [
+    './index.html',
+    './src/**/*.{ts,tsx}',
+    './ui/src/**/*.{ts,tsx}',  // ← required, easy to forget
+  ],
+  // ...
+};
+```
+
 Then:
 
 ```tsx
-import { AppShell, PageHeader, Button } from '@ui';
+import { AppShell, PageHeader, Button } from '@ui';     // flat barrel
+import { MarketingTopNav } from '@ui/marketing';        // tier-scoped
+import { Button } from '@ui/primitives';
+import { colors, wordmark } from '@ui/brand';
 ```
+
+Both import styles work. Prefer tier-scoped in code review — seeing
+`@ui/internal` in a project-site file is an obvious smell.
+
+## Tiers
+
+Three tiers of surface, all share the same palette, fonts, and
+no-rounding/no-shadow rules. What differs is **chrome** (nav + footer)
+and **density**. The `src/` tree makes the separation literal:
+
+| Tier | Folder | Lives at | Audience | Chrome |
+|---|---|---|---|---|
+| **Public marketing** | `src/marketing/` | `longleafdvco.com` | Open web, prospects, general public | Assertive: 3.5px wordmark, fixed nav with transparent-over-hero + blurred-white scrolled state |
+| **Project** | `src/project/` + `src/marketing/` | `retreat.longleafdvco.com`, `preserve.longleafdvco.com`, `indigo.longleafdvco.com`, `bayberry.longleafdvco.com` | Customers/partners of a specific development | **Same chrome as public.** "Subdued" applies to body density and motion, not the header/footer |
+| **Internal tools** | `src/internal/` | `admin.ldvco.com`, `launcher.ldvco.com`, `ops.ldvco.com`, `pipeline.ldvco.com` | Longleaf team, behind auth | Utility: 2.5px wordmark, sidebar-dominant shell, hidden interactive chrome at rest |
+
+Cross-tier folders (both `brand/` and `primitives/` are safe to import
+from any tier):
+
+| Folder | What's there | Used by |
+|---|---|---|
+| `src/brand/` | Palette, fonts, wordmark presets, Tailwind preset, `base.css` reset | All tiers |
+| `src/primitives/` | `Button`, `EmptyState`, `ErrorBanner`, `cn`/`buttonClass`/`sidebarItemClass` helpers | All tiers |
+
+### Why "project" and not "microsite"?
+
+"Microsite" is generic marketing jargon. "Deal room" overloads the
+pipeline app's concept of a deal (an in-flight transaction). The
+canonical Longleaf term across `projects.json`, the Projects section
+on the public site, and the property names themselves is **project**.
+A project site is the per-development surface — one per named
+development (Retreat, Preserve, Indigo, Bayberry).
+
+### How the "subdued private side" is achieved
+
+Project sites are NOT a forked, quieter copy of the public marketing
+site. They are:
+
+1. The **same `MarketingTopNav` + `MarketingFooter`** as the public site
+   — imported verbatim from `@ui/marketing`. Zero drift by construction.
+2. A **subdued body** — this is what "private side" actually means. Quieter
+   hero (smaller wordmark, less motion, no clamp-to-90px), denser content
+   density, less marketing copy, more specifics. Lives in `src/project/`
+   (currently empty; grows as we extract shared project patterns).
+
+If a project site's header or footer doesn't match the public site,
+that's a bug, not a design choice.
 
 ## v0.1 surface
 
-| Component | Purpose |
-|---|---|
-| `AppShell` | Three-zone shell: branding / nav / signed-in footer + main content. Every internal app wraps in this. |
-| `SidebarSection` + `SidebarItem` (styles helper) | Nav slot building blocks. Supports `<NavLink>`, `<a>`, `<button>` children via a className helper. |
-| `PageHeader` | Top-of-page. Two variants: `editorial` (eyebrow + H1) and `utilitarian` (H1 + subtitle). |
-| `Button` | Primary / secondary / ghost variants. Consistent letter-spacing dialect (`tracking-wider`). |
-| `EmptyState` | "No data yet" messaging — consistent language across pages. |
-| `ErrorBanner` | Dismissible red banner for operation failures. |
+| Component | Tier | Purpose |
+|---|---|---|
+| `MarketingTopNav` | `marketing` | Canonical public-tier header. Fixed, transparent-over-hero, swaps to blurred white on scroll. Used on public site AND every project site. |
+| `MarketingFooter` | `marketing` | Canonical public-tier footer. Thin `bg-deep-blue` strip, `© {year}` · caption. Used on public site AND every project site. |
+| `AppShell` | `internal` | Three-zone sidebar shell: branding / nav / signed-in footer + main content. |
+| `SidebarSection` + `sidebarItemClass` helper | `internal` | Nav slot building blocks. Supports `<NavLink>`, `<a>`, `<button>` children via a className helper. |
+| `PageHeader` | `internal` | Top-of-page. Two variants: `editorial` (eyebrow + H1) and `utilitarian` (H1 + subtitle). 28px Libre Baskerville — utility-mode sized. |
+| `Button` | `primitives` | Primary / secondary / ghost variants. Consistent letter-spacing dialect (`tracking-wider`). |
+| `EmptyState` | `primitives` | "No data yet" messaging — consistent language across pages. |
+| `ErrorBanner` | `primitives` | Dismissible red banner for operation failures. |
 
-## Microsite chrome contract
+(`src/project/` is intentionally empty at v0.1 — project sites use
+marketing chrome and roll their own body components until shared
+patterns emerge.)
 
-The private-tier microsites (deal rooms, property microsites like Retreat /
-Preserve / Indigo / Bayberry) must render header and footer **identical to
-`longleafdvco.com`**. The public site is the source of truth. When the
-microsite looks "less refined" than the public site, it's almost always
-because someone hand-rolled the chrome and drifted — copy the snippets
-below verbatim.
+## Project chrome contract
 
-Shared components (`MarketingTopNav`, `MarketingFooter`) aren't in `v0.1`
-yet. Until they ship, paste these snippets directly into each microsite.
+Project sites (Retreat, Preserve, Indigo, Bayberry — see the
+[Tiers](#tiers) section) must render header and footer **identical to
+`longleafdvco.com`**. The public site is the source of truth. When a
+project site looks "less refined" than the public site, it's almost
+always because someone hand-rolled the chrome and drifted — import the
+shared components below.
+
+Preferred: import `MarketingTopNav` and `MarketingFooter` from this
+package — they encode the contract so project sites can't drift:
+
+```tsx
+import { MarketingTopNav, MarketingFooter } from '@ui/marketing';
+
+export default function SiteLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <MarketingTopNav
+        links={[
+          { label: 'About',       href: '#about' },
+          { label: 'Residential', href: '#residential' },
+          { label: 'Industrial',  href: '#industrial' },
+          { label: 'Projects',    href: '#projects' },
+        ]}
+        cta={{ label: 'Contact', href: '#contact' }}
+      />
+      {children}
+      <MarketingFooter />
+    </>
+  );
+}
+```
+
+The snippets below document what the components render — use them to
+audit an existing project site, or as a starting point if you genuinely
+cannot import from `@ui` (submodule not wired yet). **Do not** fork the
+components into a project-local copy; fix the contract here instead.
 
 ### Rule: stacked wordmark is hero-only
 
 `longleafdvco.com` uses the stacked `LONGLEAF` + `DEVELOPMENT CO.` wordmark
 in **exactly one place — the hero**. It is **never** in the header and
-**never** in the footer. If a microsite footer has a large `LONGLEAF` with
-`DEVELOPMENT CO.` underneath, that is the bug: delete it and use the
+**never** in the footer. If a project site's footer has a large `LONGLEAF`
+with `DEVELOPMENT CO.` underneath, that is the bug: delete it and use the
 canonical footer below. The mis-sized look people report is this element
 being staged somewhere it doesn't belong.
 
@@ -213,9 +309,9 @@ Locked values:
 | Left | `© {year}` |
 | Right | `Longleaf Development Co.` |
 
-### Microsite chrome PR audit
+### Project chrome PR audit
 
-Before merging a new microsite, grep for these tells of drift:
+Before merging a new project site, grep for these tells of drift:
 
 - [ ] Header wordmark uses `letterSpacing: '3.5px'` (not `2.5px` — that's internal-tools)
 - [ ] Header has the 80px scroll threshold + `backdrop-blur-xl` swap
