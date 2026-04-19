@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { cn } from './classes';
+import { cn } from '../primitives/classes';
 
 export type AppShellUser = {
   /** Display name — falls back to email if absent */
@@ -119,13 +119,13 @@ export default function AppShell({
 
       <aside
         className={cn(
-          'border-b lg:border-b-0 lg:border-r border-sand bg-white flex-shrink-0 flex flex-col',
+          'lg:border-r border-sand bg-white flex-shrink-0 flex flex-col',
           // Hidden on desktop when collapsed; mobile always shows it as horizontal strip
-          collapsed ? 'hidden lg:hidden' : 'lg:w-64 lg:min-h-screen'
+          collapsed ? 'hidden lg:hidden' : 'border-b lg:border-b-0 lg:w-64 lg:min-h-screen'
         )}
       >
-        {/* Branding */}
-        <div className="px-6 py-6 border-b border-sand flex items-start justify-between gap-3">
+        {/* Branding — LONGLEAF is the wordmark; appName is a quiet tag */}
+        <div className="px-6 py-6 flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div
               className="font-ui font-bold text-deep-blue text-sm uppercase"
@@ -133,10 +133,7 @@ export default function AppShell({
             >
               LONGLEAF
             </div>
-            <div
-              className="font-ui font-semibold uppercase text-oyster mt-2 truncate"
-              style={{ fontSize: '11px', letterSpacing: '2px' }}
-            >
+            <div className="font-body text-oyster/80 mt-1 truncate text-[12px] leading-tight">
               {appName}
             </div>
           </div>
@@ -144,41 +141,40 @@ export default function AppShell({
             type="button"
             onClick={() => setCollapsed(true)}
             aria-label="Collapse sidebar"
-            className="hidden lg:flex w-7 h-7 items-center justify-center text-oyster hover:text-deep-blue hover:bg-light-sand shrink-0"
+            className="hidden lg:flex w-7 h-7 items-center justify-center text-oyster/70 hover:text-deep-blue shrink-0"
           >
             <ChevronLeftIcon />
           </button>
         </div>
 
         {/* Nav */}
-        <nav className="px-3 py-4 flex-1 overflow-x-auto lg:overflow-x-visible flex lg:flex-col gap-1">
+        <nav className="px-3 pb-4 flex-1 overflow-x-auto lg:overflow-x-visible flex lg:flex-col gap-1">
           {nav}
 
           {secondaryNav && (
-            <div className="lg:mt-2 lg:pt-2 lg:border-t border-sand">
+            <div className="lg:mt-3 lg:pt-3 lg:border-t border-sand/60">
               {secondaryNav}
             </div>
           )}
         </nav>
 
         {/* Signed-in footer */}
-        <div className="hidden lg:block px-6 py-4 border-t border-sand">
-          <div className="font-ui text-xs text-oyster mb-1">Signed in as</div>
-          <div className="font-ui text-sm font-semibold text-deep-blue truncate">
+        <div className="hidden lg:block px-6 py-4 border-t border-sand/60">
+          <div className="font-body text-oyster/80 text-[11px] leading-tight">
+            Signed in as
+          </div>
+          <div className="font-body text-deep-blue truncate text-sm mt-0.5">
             {displayName}
           </div>
           {roleLabel && (
-            <div
-              className="font-ui text-oyster uppercase mt-0.5"
-              style={{ fontSize: '11px', letterSpacing: '2px' }}
-            >
+            <div className="font-body text-oyster/70 mt-0.5 text-[11px] leading-tight">
               {roleLabel}
             </div>
           )}
           <button
             type="button"
             onClick={onSignOut}
-            className="mt-3 font-ui text-xs uppercase tracking-wider text-coastal-blue hover:text-deep-blue"
+            className="mt-3 font-body text-coastal-blue hover:text-deep-blue text-[12px]"
           >
             Sign out
           </button>

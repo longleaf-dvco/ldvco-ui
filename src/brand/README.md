@@ -33,7 +33,7 @@ export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
-      // app-specific extensions (e.g. one-off accent for a microsite)
+      // app-specific extensions (e.g. one-off accent for a project site)
     },
   },
 } satisfies Config;

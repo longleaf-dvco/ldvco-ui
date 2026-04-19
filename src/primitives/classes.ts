@@ -14,13 +14,19 @@ export function cn(...parts: Array<string | false | null | undefined>): string {
 
 export type SidebarItemState = 'active' | 'inactive' | 'disabled';
 
+// Internal-tools chrome runs subdued — no filled backgrounds on
+// active/hover, no semibold weight, no boxes. State distinction is
+// communicated by color shifts only:
+//   - active:   text deepens to deep-blue
+//   - inactive: text-oyster, deepens on hover
+//   - disabled: lighter still, no interaction
 const SIDEBAR_ITEM_BASE =
-  'w-full flex items-center gap-2 px-3 py-2 text-left font-ui text-sm whitespace-nowrap transition-colors';
+  'w-full flex items-center gap-2 px-3 py-1.5 text-left font-body whitespace-nowrap transition-colors text-[14px] leading-tight';
 
 const SIDEBAR_ITEM_VARIANTS: Record<SidebarItemState, string> = {
-  active: 'bg-sand text-deep-blue font-semibold cursor-default',
-  inactive: 'text-driftwood hover:text-deep-blue hover:bg-light-sand',
-  disabled: 'text-oyster cursor-default opacity-60',
+  active: 'text-deep-blue cursor-default',
+  inactive: 'text-oyster hover:text-deep-blue',
+  disabled: 'text-oyster/50 cursor-default',
 };
 
 /** Class recipe for a sidebar nav item. Apply to <NavLink>, <a>, or <button>. */

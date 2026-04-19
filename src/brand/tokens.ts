@@ -35,7 +35,7 @@ export const googleFontsHref =
 /**
  * Wordmark letter-spacing differs by tier:
  *  - 2.5px on internal tools (ldvco-admin, ldvco-ops, etc.)
- *  - 3.5px on public marketing + external microsites (longleafdvco.com,
+ *  - 3.5px on public marketing + project sites (longleafdvco.com,
  *    retreat.longleafdvco.com, etc.)
  * Internal apps should reach for `wordmark.internal`, customer-facing
  * for `wordmark.marketing`.
