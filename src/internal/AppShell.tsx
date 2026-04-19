@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { cn } from '../primitives/classes';
+import { wordmark } from '../brand/tokens';
 
 export type AppShellUser = {
   /** Display name — falls back to email if absent */
@@ -24,6 +25,11 @@ export type AppShellProps = {
    * Operations link from inside admin.
    */
   secondaryNav?: ReactNode;
+  /**
+   * Optional eyebrow above `secondaryNav` (e.g. "Jump to"). Renders
+   * only when `secondaryNav` is present. Defaults to "Other consoles".
+   */
+  secondaryNavLabel?: string;
   /** Called when the user clicks Sign out */
   onSignOut: () => void | Promise<void>;
   /** Page content */
@@ -80,6 +86,7 @@ export default function AppShell({
   user,
   nav,
   secondaryNav,
+  secondaryNavLabel = 'Other consoles',
   onSignOut,
   children,
   contentClassName,
@@ -124,20 +131,19 @@ export default function AppShell({
           collapsed ? 'hidden lg:hidden' : 'border-b lg:border-b-0 lg:w-64 lg:min-h-screen'
         )}
       >
-        {/* Branding — LONGLEAF is the wordmark; appName is a quiet tag */}
-        <div className="px-6 py-6 flex items-start justify-between gap-3">
+        {/* Branding — LONGLEAF is the wordmark; appName is a quiet eyebrow tag */}
+        <div className="px-5 py-4 lg:px-6 lg:py-6 flex items-center lg:items-start justify-between gap-3">
           <div className="min-w-0">
-            {/* Bumped from text-sm to text-base + tracking from 2.5px to 3px
-                so the wordmark holds its own against the public-site nav.
-                Kept below the public site's 3.5px tracking — internal
-                stays a touch quieter per the brand kit. */}
             <div
-              className="font-ui font-bold text-deep-blue text-base uppercase"
-              style={{ letterSpacing: '3px' }}
+              className="font-ui font-bold text-deep-blue text-sm uppercase"
+              style={wordmark.internal}
             >
               LONGLEAF
             </div>
-            <div className="font-body text-oyster/80 mt-1 truncate text-[12px] leading-tight">
+            <div
+              className="font-ui text-oyster/70 mt-1 truncate uppercase text-[10.5px] leading-tight"
+              style={{ letterSpacing: '0.15em' }}
+            >
               {appName}
             </div>
           </div>
@@ -151,13 +157,31 @@ export default function AppShell({
           </button>
         </div>
 
-        {/* Nav */}
-        <nav className="px-3 pb-4 flex-1 overflow-x-auto lg:overflow-x-visible flex lg:flex-col gap-1">
+        {/* Nav — on mobile this is a horizontal scrolling strip; on
+            desktop, a vertical stack. */}
+        <nav className="px-3 pb-3 lg:pb-4 flex-1 overflow-x-auto lg:overflow-x-visible flex lg:flex-col items-center lg:items-stretch gap-1">
           {nav}
 
           {secondaryNav && (
-            <div className="lg:mt-3 lg:pt-3 lg:border-t border-sand/60">
-              {secondaryNav}
+            <div
+              className={cn(
+                // Mobile: thin vertical rule marks the handoff as a
+                // context-switch, not just another nav item.
+                'flex items-center lg:items-stretch gap-2 lg:gap-0.5 pl-3 ml-1 border-l border-sand',
+                // Desktop: collapse to a horizontal divider above the
+                // handoff group so it reads as a separate region.
+                'lg:flex-col lg:pl-0 lg:ml-0 lg:border-l-0 lg:border-t lg:border-sand/60 lg:mt-3 lg:pt-3'
+              )}
+            >
+              <span
+                className="font-ui uppercase text-oyster/60 text-[10px] whitespace-nowrap px-1 lg:px-3 lg:mb-1"
+                style={{ letterSpacing: '0.15em' }}
+              >
+                {secondaryNavLabel}
+              </span>
+              <div className="flex lg:flex-col lg:w-full gap-0.5">
+                {secondaryNav}
+              </div>
             </div>
           )}
         </nav>
