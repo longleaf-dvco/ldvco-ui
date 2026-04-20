@@ -36,10 +36,10 @@ export type AppShellProps = {
   children: ReactNode;
   /**
    * Override the main content container classes. Default:
-   * 'max-w-5xl mx-auto px-6 py-8 lg:py-12'. Utility-mode density —
+   * 'max-w-5xl mx-auto px-6 py-8 md:py-12'. Utility-mode density —
    * data surfaces sit closer to the top. Override for content-focused
    * pages that want more breathing room, or for narrower columns
-   * (notes pages use 'max-w-2xl mx-auto px-6 py-12 lg:py-16').
+   * (notes pages use 'max-w-2xl mx-auto px-6 py-12 md:py-16').
    */
   contentClassName?: string;
   /**
@@ -110,17 +110,17 @@ export default function AppShell({
   const displayName = user.name || user.email || 'Signed in';
   const roleLabel = user.role ? formatRole(user.role) : null;
 
-  const main = contentClassName ?? 'max-w-5xl mx-auto px-6 py-8 lg:py-12';
+  const main = contentClassName ?? 'max-w-5xl mx-auto px-6 py-8 md:py-12';
 
   return (
-    <div className="min-h-screen bg-light-sand flex flex-col lg:flex-row relative">
+    <div className="min-h-screen bg-light-sand flex flex-col md:flex-row relative">
       {/* Floating "show sidebar" button — only visible on desktop while collapsed */}
       {collapsed && (
         <button
           type="button"
           onClick={() => setCollapsed(false)}
           aria-label="Show sidebar"
-          className="hidden lg:flex fixed top-4 left-4 z-20 w-9 h-9 items-center justify-center bg-white border border-sand text-deep-blue hover:bg-light-sand"
+          className="hidden md:flex fixed top-4 left-4 z-20 w-9 h-9 items-center justify-center bg-white border border-sand text-deep-blue hover:bg-light-sand"
         >
           <HamburgerIcon />
         </button>
@@ -128,13 +128,13 @@ export default function AppShell({
 
       <aside
         className={cn(
-          'lg:border-r border-sand bg-white flex-shrink-0 flex flex-col',
+          'md:border-r border-sand bg-white flex-shrink-0 flex flex-col',
           // Hidden on desktop when collapsed; mobile always shows it as horizontal strip
-          collapsed ? 'hidden lg:hidden' : 'border-b lg:border-b-0 lg:w-64 lg:min-h-screen'
+          collapsed ? 'hidden md:hidden' : 'border-b md:border-b-0 md:w-64 md:min-h-screen'
         )}
       >
         {/* Branding — LONGLEAF is the wordmark; appName is a quiet eyebrow tag */}
-        <div className="px-5 py-4 lg:px-6 lg:py-6 flex items-center lg:items-start justify-between gap-3">
+        <div className="px-5 py-4 md:px-6 md:py-6 flex items-center md:items-start justify-between gap-3">
           <div className="min-w-0">
             <div
               className="font-ui font-bold text-deep-blue text-sm uppercase"
@@ -153,7 +153,7 @@ export default function AppShell({
             type="button"
             onClick={() => setCollapsed(true)}
             aria-label="Collapse sidebar"
-            className="hidden lg:flex w-7 h-7 items-center justify-center text-oyster/70 hover:text-deep-blue shrink-0"
+            className="hidden md:flex w-7 h-7 items-center justify-center text-oyster/70 hover:text-deep-blue shrink-0"
           >
             <ChevronLeftIcon />
           </button>
@@ -161,7 +161,7 @@ export default function AppShell({
 
         {/* Nav — on mobile this is a horizontal scrolling strip; on
             desktop, a vertical stack. */}
-        <nav className="px-3 pb-3 lg:pb-4 flex-1 overflow-x-auto lg:overflow-x-visible flex lg:flex-col items-center lg:items-stretch gap-1">
+        <nav className="px-3 pb-3 md:pb-4 flex-1 overflow-x-auto md:overflow-x-visible flex md:flex-col items-center md:items-stretch gap-1">
           {nav}
 
           {secondaryNav && (
@@ -169,19 +169,19 @@ export default function AppShell({
               className={cn(
                 // Mobile: thin vertical rule marks the handoff as a
                 // context-switch, not just another nav item.
-                'flex items-center lg:items-stretch gap-2 lg:gap-0.5 pl-3 ml-1 border-l border-sand',
+                'flex items-center md:items-stretch gap-2 md:gap-0.5 pl-3 ml-1 border-l border-sand',
                 // Desktop: collapse to a horizontal divider above the
                 // handoff group so it reads as a separate region.
-                'lg:flex-col lg:pl-0 lg:ml-0 lg:border-l-0 lg:border-t lg:border-sand/60 lg:mt-3 lg:pt-3'
+                'md:flex-col md:pl-0 md:ml-0 md:border-l-0 md:border-t md:border-sand/60 md:mt-3 md:pt-3'
               )}
             >
               <span
-                className="font-ui uppercase text-oyster/60 text-[10px] whitespace-nowrap px-1 lg:px-3 lg:mb-1"
+                className="font-ui uppercase text-oyster/60 text-[10px] whitespace-nowrap px-1 md:px-3 md:mb-1"
                 style={{ letterSpacing: '0.15em' }}
               >
                 {secondaryNavLabel}
               </span>
-              <div className="flex lg:flex-col lg:w-full gap-0.5">
+              <div className="flex md:flex-col md:w-full gap-0.5">
                 {secondaryNav}
               </div>
             </div>
@@ -189,7 +189,7 @@ export default function AppShell({
         </nav>
 
         {/* Signed-in footer */}
-        <div className="hidden lg:block px-6 py-4 border-t border-sand/60">
+        <div className="hidden md:block px-6 py-4 border-t border-sand/60">
           <div className="font-body text-oyster/80 text-[11px] leading-tight">
             Signed in as
           </div>
