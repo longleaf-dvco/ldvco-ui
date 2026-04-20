@@ -18,14 +18,14 @@ export type SidebarSectionProps = {
  */
 export default function SidebarSection({ title, children }: SidebarSectionProps) {
   return (
-    <div className="mb-3 last:mb-0 lg:mb-4 flex lg:flex-col gap-2 lg:gap-0.5 items-center lg:items-start">
+    <div className="mb-3 last:mb-0 md:mb-4 flex md:flex-col gap-2 md:gap-0.5 items-center md:items-start">
       <h3
-        className="font-ui uppercase text-oyster/60 px-1 lg:px-3 lg:mb-1 whitespace-nowrap text-[10px] leading-tight"
+        className="font-ui uppercase text-oyster/60 px-1 md:px-3 md:mb-1 whitespace-nowrap text-[10px] leading-tight"
         style={{ letterSpacing: '0.15em' }}
       >
         {title}
       </h3>
-      <div className="flex lg:flex-col lg:w-full gap-0.5">{children}</div>
+      <div className="flex md:flex-col md:w-full gap-0.5">{children}</div>
     </div>
   );
 }
